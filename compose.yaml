@@ -1,0 +1,50 @@
+name: openldap-mediawiki
+
+services:
+  wiki:
+    restart: always
+    build:
+      dockerfile: ./wiki/Dockerfile
+      args:
+        LDAP_PROVIDER_TARBALL: ${LDAP_PROVIDER_TARBALL}
+        PLUGGABLE_AUTH_TARBALL: ${PLUGGABLE_AUTH_TARBALL}
+        LDAP_AUTHENTICATION2_TARBALL: ${LDAP_AUTHENTICATION2_TARBALL}
+    hostname: ${MW_SERVER_FQDN}
+    ports:
+    - 8080:80
+    links:
+      - database
+    volumes:
+      - images:/var/www/html/images
+      - ./wiki/config/LocalSettings.php:/var/www/html/LocalSettings.php
+      - ./wiki/config/ldapprovider.json:/etc/mediawiki/ldapprovider.json
+      - ./x509-cert/ldapscert.pem:/etc/mediawiki/ldapscert.pem:ro
+  ldap:
+    build:
+      context: ./
+      dockerfile: ./ldap/Dockerfile
+    hostname: ${LDAP_SERVER_FQDN}
+  client:
+    build:
+      context: ./
+      dockerfile: ./client/Dockerfile
+      args:
+        LDAP_SERVER_FQDN: ${LDAP_SERVER_FQDN}
+    tty: true
+    stdin_open: true
+    hostname: client.cclub
+  database:
+    image: mariadb
+    restart: always
+    environment:
+      # @see https://phabricator.wikimedia.org/source/mediawiki/browse/master/includes/DefaultSettings.php
+      MYSQL_DATABASE: my_wiki
+      MYSQL_USER: wikiuser
+      MYSQL_PASSWORD: example
+      MYSQL_RANDOM_ROOT_PASSWORD: 'yes'
+    volumes:
+      - db:/var/lib/mysql
+
+volumes:
+  images:
+  db:

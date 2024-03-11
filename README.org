@@ -1,0 +1,276 @@
+* Setting up mediawiki with openldap
+
+- There's an example Dockerfile using builders and final here: <https://pastebin.com/Dzmn6k69>.
+- Example [[https://pastebin.com/YASF72pC][slapd.conf]] for openldap.
+- Example [[https://pastebin.com/WcxrG9qA][entrypoint.sh]] for that Dockerfile.
+
+In order to get openldap working on alpine linux, see also:
+
+- <https://www.openldap.org/doc/admin26/quickstart.html>
+- <https://wiki.alpinelinux.org/wiki/Configure_OpenLDAP>
+- <https://www.zytrax.com/books/ldap/>
+
+- [X] There seems to be an issue with executing the daemon because the process forks. Maybe [[https://github.com/just-containers/s6-overlay][s6-overlay]] will help; see also <https://rip.hibariya.org/post/why-you-need-a-proper-init-process-on-docker/>. Alternatively, I can follow the pid file with ~tail -F~ but I need to configure the pid file; see ~slapd.conf(5)~.
+
+  Answer: Use the ~-d~ flag with ~slapd~ which guarantees that it won't fork.
+
+- There is an alternative to ldap called [[https://www.freeipa.org/][FreeIPA]]. Yet another is [[https://freeradius.org/][freeRADIUS]].
+
+- Some best practices here <https://ltb-project.org/documentation/>.
+
+- An example ~compose.yaml~ using osixia's image is here <https://www.reddit.com/r/selfhosted/comments/uorzs4/comment/i8iozvv/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button>.
+
+- How to set up openldap, see <https://github.com/johnstonjs/easyldap>.
+
+- General information on LDAP by IBM: <https://www.ibm.com/docs/en/zvm/7.3?topic=server-what-is-ldap>.
+
+There are two admins... one for the config and one for the org. The config is a db and it needs its own username.
+Add all the extensions/definitions you can from the get go ( once its installed it will convert the config file to a db file and its a shitshow to add more definitions. ) 
+
+** An example session
+
+We can build and run the ~compose.yaml~ with
+
+#+begin_src sh
+  # use `docker system prune` if you need to delete
+  # files lingering in the images.
+  docker compose build
+  docker compose up
+#+end_src
+
+We can find the ~alpine~ container and connect to it with
+
+#+begin_src sh
+  docker container ls
+  docker container attach $ID
+#+end_src
+
+From there, we can connect to the ldap and run example queries with
+
+#+begin_src sh
+  apk add openldap-clients
+  ldapsearch -x -H ldap://ldap.cclub
+#+end_src
+
+*** Configuring openldap
+
+To configure openldap we must edit ~/etc/openldapslapd.ldif~. An example:
+
+#+begin_src conf
+  dn: cn=config
+  objectClass: olcGlobal
+  cn: config
+  #
+  #
+  # Define global ACLs to disable default read access.
+  #
+  # Do not enable referrals until AFTER you have a working directory
+  # service AND an understanding of referrals.
+  #olcReferral:	ldap://root.openldap.org
+  #
+  # Sample security restrictions
+  #	Require integrity protection (prevent hijacking)
+  #	Require 112-bit (3DES or better) encryption for updates
+  #	Require 64-bit encryption for simple bind
+  #olcSecurity: ssf=1 update_ssf=112 simple_bind=64
+
+
+  #
+  # Load dynamic backend modules:
+  #
+  dn: cn=module,cn=config
+  objectClass: olcModuleList
+  cn: module
+  olcModulepath:	/usr/lib/openldap
+  olcModuleload:	back_mdb.so
+  #olcModuleload:	back_ldap.so
+  #olcModuleload:	back_passwd.so
+
+  dn: cn=schema,cn=config
+  objectClass: olcSchemaConfig
+  cn: schema
+
+  include: file:///etc/openldap/schema/core.ldif
+  include: file:///etc/openldap/schema/cosine.ldif
+  include: file:///etc/openldap/schema/inetorgperson.ldif
+  include: file:///etc/openldap/schema/nis.ldif
+
+  # Frontend settings
+  #
+  dn: olcDatabase=frontend,cn=config
+  objectClass: olcDatabaseConfig
+  objectClass: olcFrontendConfig
+  olcDatabase: frontend
+  #
+  # Sample global access control policy:
+  #	Root DSE: allow anyone to read it
+  #	Subschema (sub)entry DSE: allow anyone to read it
+  #	Other DSEs:
+  #		Allow self write access
+  #		Allow authenticated users read access
+  #		Allow anonymous users to authenticate
+  #
+  #olcAccess: to dn.base="" by * read
+  #olcAccess: to dn.base="cn=Subschema" by * read
+  #olcAccess: to *
+  #	by self write
+  #	by users read
+  #	by anonymous auth
+  #
+  # if no access controls are present, the default policy
+  # allows anyone and everyone to read anything but restricts
+  # updates to rootdn.  (e.g., "access to * by * read")
+  #
+  # rootdn can always read and write EVERYTHING!
+  #
+
+
+  #######################################################################
+  # LMDB database definitions
+  #######################################################################
+  #
+  dn: olcDatabase=mdb,cn=config
+  objectClass: olcDatabaseConfig
+  objectClass: olcMdbConfig
+  olcDatabase: mdb
+  olcDbMaxSize: 1073741824
+  olcSuffix: dc=my-domain,dc=com
+  olcRootDN: cn=Manager,dc=my-domain,dc=com
+  # Cleartext passwords, especially for the rootdn, should
+  # be avoided.  See slappasswd(8) and slapd-config(5) for details.
+  # Use of strong authentication encouraged.
+  olcRootPW: secret
+  # The database directory MUST exist prior to running slapd AND 
+  # should only be accessible by the slapd and slap tools.
+  # Mode 700 recommended.
+  olcDbDirectory:	/var/lib/openldap/openldap-data
+  # Indices to maintain
+  olcDbIndex: objectClass eq
+
+  dn: olcDatabase=monitor,cn=config
+  objectClass: olcDatabaseConfig
+  olcDatabase: monitor
+  olcRootDN: cn=config
+  olcMonitoring: FALSE
+#+end_src
+
+
+** Creating a certificate
+
+Use:
+
+#+begin_src sh
+  openssl req -x509 -noenc -days 3650 -newkey rsa:2048 -keyout ldapskey.key -out ldapscert.pem
+#+end_src
+
+Answer with:
+
+#+begin_example
+Country Name (2 letter code) [AU]:US
+State or Province Name (full name) [Some-State]:Michigan
+Locality Name (eg, city) []:Kalamazoo
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:Western Michigan University 
+Organizational Unit Name (eg, section) []:Computer Club
+Common Name (e.g. server FQDN or YOUR name) []:cclub.cs.wmich.edu
+Email Address []:rso_cclub@wmich.edu
+#+end_example
+
+Note that we're using RSA with 2048 bits to have wide support in programs that attempt to communicate with the LDAP server. X25519 is not as widely supported as RSA.
+
+Ever better, create a ~.cnf~ file to produce the certificate. See <https://blog.pinterjann.is/ed25519-certificates.html>.
+
+** TODO Things to do
+
+*** DONE Use osixia image and read on LDAP protocol
+CLOSED: [2024-03-08 Fri 04:17]
+
+What should the schema be?
+
+DN is an entry in the schema and has a name (the name is the full path.)
+
+#+begin_example
+DN: cn=Nik C,OU=cclub,O=WMich,C=US
+#+end_example
+
+Another is
+
+#+begin_example
+cn=object,ou=users,dc=domain
+#+end_example
+
+I decided not to use osixia, I wrote my own instead.
+
+**** DONE How to make a bind request to check for authentication of a user?
+CLOSED: [2024-03-08 Fri 04:16]
+
+That's done with ~ldapsearch~ using ~-D~ for example.
+
+**** DONE How to use SASL with openldap?
+CLOSED: [2024-03-08 Fri 04:16]
+
+We don't need to use SASL.
+
+*** TODO Read docker documentation
+
+*** TODO Configure mediawiki with env file
+
+See <https://docs.docker.com/compose/environment-variables/set-environment-variables/#substitute-with-an-env-file>.
+
+Note that MediaWiki is configured via ~LocalSettings.php~.
+
+*** DONE Use composer to install ldap plugin
+CLOSED: [2024-03-11 Mon 20:10]
+
+- [X] Setting up composer: <https://hub.docker.com/_/composer>
+- [X] Using [[https://www.mediawiki.org/wiki/Extension:LDAPAuthentication2][LDAPAuthenticator2]].
+
+See also <https://github.com/docker-library/docs/blob/31280550a3c7104fef824450753844d2f3d917be/php/README.md#how-to-install-more-php-extensions>
+
+I should not use composer; as this MediaWiki article says, composer is not well supported for extensions: <https://www.mediawiki.org/wiki/Composer>. Instead for the official docker image I just drag and drop extensions in the ~extensions~ directory.
+
+*** DONE Install openldap and mediawiki in one container
+CLOSED: [2024-03-08 Fri 04:17]
+
+I use two containers instead, using ~docker compose~. They communicate through the network.
+
+*** TODO Configure persistent storage?
+
+*** TODO Access policy should be set up?
+
+*** TODO Figure out passwords for OpenLDAP
+
+*** TODO Add logfile for OpenLDAP
+
+*** TODO Add env file for domain and password, etc
+
+*** DONE cron job for update and daemon restart?
+CLOSED: [2024-03-11 Mon 20:13]
+
+This is for the sysadmin to decide; the way I'm writing the image, the latest software will be used on rebuild.
+
+*** TODO Use python invoke for the project management
+
+To use invoke, do the following:
+
+#+begin_src sh
+  python3 -m venv .venv
+  source .venv/bin/activate
+  pip3 install invoke
+#+end_src
+
+Then ~invoke~ will be available in the venv-activated shell; also can be called as ~inv~ instead of ~invoke~.
+
+List all available tasks with ~inv -l~ and read help for one with ~inv -h $task~.
+
+Things to use invoke with:
+
+- [X] create an x509 certificate
+- [ ] set configuration options (should generate ~.env~ with a warning on top that the file is autogenerated by ~invoke~)
+- [ ] bring server up
+- [ ] backup server?
+- [ ] read server logs?
+
+*** TODO Integrate the LDAP server with MediaWiki
+
+1. [ ] Try without TLS.
+2. [ ] Try with TLS. See also <https://www.mediawiki.org/wiki/Topic:Vammh5efqq1tgg81>.
