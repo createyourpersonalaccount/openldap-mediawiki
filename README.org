@@ -273,5 +273,5 @@ Things to use invoke with:
 
 *** TODO Integrate the LDAP server with MediaWiki
 
-1. [ ] Try without TLS.
+1. [X] Try without TLS. Done. See ~notls~ branch.
 2. [ ] Try with TLS. See also <https://www.mediawiki.org/wiki/Topic:Vammh5efqq1tgg81>.
