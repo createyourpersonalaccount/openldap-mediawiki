@@ -7,5 +7,7 @@ COPY --chmod=644                \
      ./x509-cert/ldapscert.pem  \
      ./client/config/ldap.conf  \
      /etc/openldap/
+COPY --chmod=755                        \
+     ./client/config/query.sh /
 RUN   apk update --no-cache &&                  \
       apk add -U --no-cache openldap-clients
