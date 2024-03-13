@@ -36,4 +36,4 @@ You are encouraged to look at the files to understand which parts must be edited
 2. You should change passwords on all the services (wiki, ldap, db.) You may want to use Docker's secrets mechanism, use salted hashes in LDAP, etc.
 3. You may want to configure the access policy in LDAP to suit your needs.
 4. You should set up LDAP to use your real content database, not the one in ~ldap/config/example.com.ldif~.
-5. Other modifications are possible. This is a minimal project.
+5. Other modifications are possible. This is a minimal project. Maybe you want more [[https://www.mediawiki.org/wiki/LDAP_hub][MediaWiki LDAP plugins]]?
