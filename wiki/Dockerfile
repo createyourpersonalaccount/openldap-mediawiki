@@ -24,5 +24,5 @@ RUN mkdir --parents ./extensions/LDAPAuthentication2 &&                 \
     tar xzC ./extensions/LDAPAuthentication2 --strip-components=1 &&    \
     chown --recursive www-data:www-data ./extensions/LDAPAuthentication2
 RUN apt update &&                       \
-    apt install -y libldap2-dev &&      \
+    apt install --yes libldap2-dev &&   \
     docker-php-ext-install ldap

@@ -1,13 +1,14 @@
 # syntax=docker/dockerfile:1
 FROM alpine:latest
-RUN apk update --no-cache &&                            \
-    apk add -U --no-cache openldap openldap-back-mdb && \
-    install -m 750 -o ldap -g ldap                      \
-            -d /etc/openldap/slapd.d                    \
-               /var/lib/openldap/example-com &&         \
-    install -m 700 -o ldap -g ldap                      \
-            -d /var/lib/openldap/openldap-data &&       \
-    rm -f /etc/openldap/ldap.conf                       \
+RUN apk update --no-cache &&                                    \
+    apk add --upgrade --no-cache                                \
+        openldap openldap-back-mdb &&                           \
+    install --mode=750 --owner=ldap --group=ldap                \
+            --directory /etc/openldap/slapd.d                   \
+               /var/lib/openldap/example-com &&                 \
+    install --mode=700 --owner=ldap --group=ldap                \
+            --directory /var/lib/openldap/openldap-data &&      \
+    rm -f /etc/openldap/ldap.conf                               \
           /etc/openldap/slapd.conf
 COPY --chmod=640                        \
      --chown=root:ldap                  \
