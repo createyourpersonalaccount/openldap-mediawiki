@@ -7,8 +7,8 @@ email = "rso_cclub@wmich.edu"
 
 dir = Path("x509-cert")
 cnf = dir / "cert.cnf"
-crt = dir / "ldapscert.pem"
-key = dir / "ldapskey.key"
+crt = / "ldapscert.pem"
+key = Path("secrets/ldapskey.key")
 
 # See
 # <https://docs.joshuatz.com/cheatsheets/security/self-signed-ssl-certs/>

@@ -181,6 +181,8 @@ Ever better, create a ~.cnf~ file to produce the certificate. See <https://blog.
 
 ** TODO Things to do
 
+*** TODO Replace short options by long options
+
 *** TODO Read docker documentation
 
 *** TODO Configure persistent storage?
