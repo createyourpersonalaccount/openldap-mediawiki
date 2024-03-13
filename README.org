@@ -2,7 +2,7 @@
 
 This is a Docker multi-container of MediaWiki with MariaDB and OpenLDAP.
 
-Two technical note:
+Two technical notes:
 
 1. We extend the official [[https://hub.docker.com/_/mediawiki][MediaWiki]] and [[https://hub.docker.com/_/mariadb][MariaDB]] Docker images, but we employ our own OpenLDAP image (we elected not to use the popular <https://github.com/osixia/docker-openldap> because it appeared overengineered for our purpose and hard to assess.)
 2. We use implicit TLS instead of [[https://en.wikipedia.org/wiki/Opportunistic_TLS][STARTTLS]] (this is not bad.)
