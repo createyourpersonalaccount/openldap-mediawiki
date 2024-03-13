@@ -10,6 +10,10 @@ services:
         PLUGGABLE_AUTH_TARBALL: ${PLUGGABLE_AUTH_TARBALL}
         LDAP_AUTHENTICATION2_TARBALL: ${LDAP_AUTHENTICATION2_TARBALL}
     hostname: ${MW_SERVER_FQDN}
+    logging:
+      driver: local
+      options:
+        mode: non-blocking
     ports:
     - 8080:80
     links:
@@ -24,6 +28,10 @@ services:
       context: ./
       dockerfile: ./ldap/Dockerfile
     hostname: ${LDAP_SERVER_FQDN}
+    logging:
+      driver: local
+      options:
+        mode: non-blocking
   client:
     build:
       context: ./
@@ -36,6 +44,10 @@ services:
   database:
     image: mariadb
     restart: always
+    logging:
+      driver: local
+      options:
+        mode: non-blocking
     environment:
       # @see https://phabricator.wikimedia.org/source/mediawiki/browse/master/includes/DefaultSettings.php
       MYSQL_DATABASE: my_wiki

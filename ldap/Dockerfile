@@ -23,4 +23,4 @@ RUN chmod o+r /etc/openldap/ldapscert.pem &&   \
     slapadd -b 'dc=example,dc=com'             \
             -F /etc/openldap/slapd.d           \
             -l /etc/openldap/example.com.ldif
-ENTRYPOINT slapd -d 0 -h ldaps:///
+ENTRYPOINT slapd -d -1 -h ldaps:///
