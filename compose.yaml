@@ -30,15 +30,6 @@ services:
       driver: local
       options:
         mode: non-blocking
-  client:
-    build:
-      context: ./
-      dockerfile: ./client/Dockerfile
-      args:
-        LDAP_SERVER_FQDN: ${LDAP_SERVER_FQDN}
-    tty: true
-    stdin_open: true
-    hostname: client.cclub
   database:
     image: mariadb
     restart: always
