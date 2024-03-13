@@ -21,8 +21,6 @@ services:
     volumes:
       - images:/var/www/html/images
       - ./wiki/config/LocalSettings.php:/var/www/html/LocalSettings.php
-      - ./wiki/config/ldapprovider.json:/etc/mediawiki/ldapprovider.json
-      - ./x509-cert/ldapscert.pem:/etc/mediawiki/ldapscert.pem:ro
   ldap:
     build:
       context: ./

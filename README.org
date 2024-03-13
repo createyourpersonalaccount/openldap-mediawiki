@@ -220,10 +220,12 @@ Things to use invoke with:
 - [ ] read server logs?
 - [ ] exec certain commands inside the running containers. (e.g. backup LDAP? or set up a cron job.)
 
-*** TODO Integrate the LDAP server with MediaWiki
+*** DONE Integrate the LDAP server with MediaWiki
+CLOSED: [2024-03-13 Wed 00:12]
 
 1. [X] Try without TLS. Done. See ~notls~ branch.
-2. [ ] Try with TLS. See also <https://www.mediawiki.org/wiki/Topic:Vammh5efqq1tgg81>.
+2. [X] Try with TLS. See also <https://www.mediawiki.org/wiki/Topic:Vammh5efqq1tgg81>.
+
 *** DONE Use osixia image and read on LDAP protocol
 CLOSED: [2024-03-08 Fri 04:17]
 

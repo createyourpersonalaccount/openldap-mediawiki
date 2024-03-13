@@ -136,14 +136,12 @@ wfLoadSkin( 'Vector' );
 # End of automatically generated settings.
 # Add more configuration options below.
 wfLoadExtension( 'LDAPProvider' );
-$ldapJsonFile = "/etc/mediawiki/ldapprovider.json";
-$LDAPProviderDomainConfigProvider = "\\MediaWiki\\Extension\\LDAPProvider\\DomainConfigProvider\\LocalJSONFile::newInstance";
-$LDAPProviderDomainConfigs = $ldapJsonFile;
-$LDAPProviderDefaultDomain="ldap.cclub";
 wfLoadExtension( 'PluggableAuth' );
-$wgPluggableAuth_EnableAutoLogin = false; #if true, disables the logout option
-$wgPluggableAuth_EnableLocalLogin = false;
-$wgPluggableAuth_ButtonLabel  = "Login...";
 wfLoadExtension( 'LDAPAuthentication2' );
-$LDAPAuthentication2AllowLocalLogin = false;
-#$LDAPProviderDomainConfigs = "/var/www/html/extensions/LDAPProvider/ldapprovider.json";
+$wgPluggableAuth_Config['Log In (LDAP)'] = [
+    'plugin' => 'LDAPAuthentication2',
+    'data' => [
+        'domain' => 'ldap.cclub'
+    ]
+];
+

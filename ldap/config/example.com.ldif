@@ -8,7 +8,7 @@ dn: ou=people,dc=example,dc=com
 ou: people
 objectclass: organizationalunit
 
-dn: cn=Robert Smith,ou=people,dc=example,dc=com
+dn: uid=rjsmith,ou=people,dc=example,dc=com
 objectclass: inetOrgPerson
 cn: Robert Smith
 cn: Robert J Smith

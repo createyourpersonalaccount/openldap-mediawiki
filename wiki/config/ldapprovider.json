@@ -1,21 +1,19 @@
 {
-    "LDAP Demo": {
+    "ldap.cclub": {
         "connection": {
             "server": "ldap.cclub",
             "port": "636",
-            "enctype": "tls",
-            "LDAP_OPT_X_TLS_CACERTFILE": "/var/www/html/certs/ca.crt",
+            "enctype": "ssl",
             "user": "cn=Manager,dc=example,dc=com",
             "pass": "secret",
 	    "basedn": "dc=example,dc=com",
 	    "groupbasedn": "dc=example,dc=com",
 	    "userbasedn": "dc=example,dc=com",
 	    "searchattribute": "uid",
-	    "searchstring": "uid=USER-NAME,dc=example,dc=com",
+	    "searchstring": "uid=USER-NAME,ou=people,dc=example,dc=com",
 	    "usernameattribute": "uid",
 	    "realnameattribute": "cn",
 	    "emailattribute": "mail"
         }
     }
 }
-
