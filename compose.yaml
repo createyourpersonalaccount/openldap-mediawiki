@@ -2,7 +2,6 @@ name: openldap-mediawiki
 
 services:
   wiki:
-    restart: always
     build:
       dockerfile: ./wiki/Dockerfile
       args:
