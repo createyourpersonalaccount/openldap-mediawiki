@@ -181,6 +181,10 @@ Ever better, create a ~.cnf~ file to produce the certificate. See <https://blog.
 
 ** TODO Things to do
 
+*** TODO Convert ~ldap.conf~ to ~ldap.ldif~
+
+This might just be a simple ~slapadd~.
+
 *** TODO Read docker documentation
 
 *** TODO Configure mediawiki with env file

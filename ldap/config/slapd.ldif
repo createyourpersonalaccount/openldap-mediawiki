@@ -7,7 +7,7 @@ objectClass: olcGlobal
 cn: config
 olcPidFile: /var/run/openldap/ldap.pid
 olcTLSCertificateFile:      /etc/openldap/ldapscert.pem
-olcTLSCertificateKeyFile:   /etc/openldap/ldapskey.key
+olcTLSCertificateKeyFile:   /run/secrets/ldapskey.key
 olcTLSCipherSuite:          TLSv1+aRSA:!NULL
 olcTLSVerifyClient: never
 olcDisallows: bind_anon

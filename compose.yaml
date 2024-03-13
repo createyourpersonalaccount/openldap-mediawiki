@@ -26,6 +26,9 @@ services:
       context: ./
       dockerfile: ./ldap/Dockerfile
     hostname: ${LDAP_SERVER_FQDN}
+    secrets:
+      - source: ldap_private_key
+        target: ldapskey.key
     logging:
       driver: local
       options:
@@ -38,7 +41,6 @@ services:
       options:
         mode: non-blocking
     environment:
-      # @see https://phabricator.wikimedia.org/source/mediawiki/browse/master/includes/DefaultSettings.php
       MYSQL_DATABASE: my_wiki
       MYSQL_USER: wikiuser
       MYSQL_PASSWORD: example
@@ -49,3 +51,7 @@ services:
 volumes:
   images:
   db:
+
+secrets:
+  ldap_private_key:
+    file: ./secrets/ldapskey.key

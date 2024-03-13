@@ -14,7 +14,6 @@ COPY --chmod=640                        \
      ./ldap/config/slapd.ldif           \
      ./ldap/config/example.com.ldif     \
      ./x509-cert/ldapscert.pem          \
-     ./x509-cert/ldapskey.key           \
      /etc/openldap/
 RUN chmod o+r /etc/openldap/ldapscert.pem &&   \
     slapadd -n 0                               \

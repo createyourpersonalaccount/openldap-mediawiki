@@ -1,2 +1,2 @@
-# Do not commit private keys.
-/x509-cert/*.key
+# Do not commit secrets.
+/secrets/*
