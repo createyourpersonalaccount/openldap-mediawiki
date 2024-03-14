@@ -33,7 +33,6 @@ services:
   database:
     image: mariadb
     hostname: db.cclub
-    restart: always
     logging:
       driver: local
       options:
